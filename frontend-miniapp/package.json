@@ -1,0 +1,25 @@
+{
+  "name": "sales-coach-miniapp",
+  "version": "1.0.0",
+  "description": "智能销售对练系统 - 销售端小程序",
+  "main": "main.js",
+  "scripts": {
+    "dev:h5": "vite",
+    "build:h5": "vite build",
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "build:mp-weixin": "uni build -p mp-weixin"
+  },
+  "dependencies": {
+    "vue": "^3.4.21",
+    "pinia": "^2.1.7",
+    "axios": "^1.6.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vite": "^5.2.8",
+    "typescript": "^5.4.5"
+  },
+  "keywords": ["uni-app", "钉钉小程序", "销售对练"],
+  "author": "",
+  "license": "MIT"
+}

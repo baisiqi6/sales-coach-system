@@ -1,0 +1,48 @@
+{
+    "pages": [
+        {
+            "path": "pages/index/index",
+            "style": {
+                "navigationBarTitleText": "销售对练"
+            }
+        },
+        {
+            "path": "pages/chat/chat",
+            "style": {
+                "navigationBarTitleText": "对练中"
+            }
+        },
+        {
+            "path": "pages/report/report",
+            "style": {
+                "navigationBarTitleText": "对练报告"
+            }
+        }
+    ],
+    "globalStyle": {
+        "navigationBarTextStyle": "black",
+        "navigationBarTitleText": "智能销售对练",
+        "navigationBarBackgroundColor": "#F8F8F8",
+        "backgroundColor": "#F8F8F8"
+    },
+    "tabBar": {
+        "color": "#7A7E83",
+        "selectedColor": "#3cc51f",
+        "borderStyle": "black",
+        "backgroundColor": "#ffffff",
+        "list": [
+            {
+                "pagePath": "pages/index/index",
+                "iconPath": "static/tab-home.png",
+                "selectedIconPath": "static/tab-home-active.png",
+                "text": "首页"
+            },
+            {
+                "pagePath": "pages/report/report",
+                "iconPath": "static/tab-report.png",
+                "selectedIconPath": "static/tab-report-active.png",
+                "text": "报告"
+            }
+        ]
+    }
+}
