@@ -70,7 +70,7 @@ export default {
             try {
                 // 使用局域网 IP 地址，小程序无法访问 localhost
                 const response = await uni.request({
-                    url: 'http://10.53.225.148:8000/api/v1/health',
+                    url: 'http://192.168.108.55:8000/api/v1/health',
                     method: 'GET'
                 })
                 this.testResult = '后端联通成功！'

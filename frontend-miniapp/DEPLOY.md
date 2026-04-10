@@ -9,7 +9,7 @@
 
 ### 2. 导入项目
 1. 文件 → 导入 → 从本地目录导入
-2. 选择 `/Users/yinxin/Desktop/sales-coach-system/frontend-miniapp` 目录
+2. 选择 `/Users/yinxin/projects/coach-stage/frontend-miniapp` 目录
 3. 项目类型选择 "uni-app"
 
 ### 3. 配置钉钉小程序

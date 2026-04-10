@@ -1,30 +1,37 @@
-# FastAPI 核心
-fastapi==0.115.0
-uvicorn[standard]==0.32.0
-python-multipart==0.0.12
+# ============================================================
+# CoachStage 后端依赖
+# Python 3.11+
+# ============================================================
 
-# 数据库
-sqlalchemy==2.0.35
-asyncpg==0.30.0
-alembic==1.14.0
+# ---- Web 框架 ----
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+python-multipart>=0.0.12
 
-# Redis
-redis==5.2.0
-aioredis==2.0.1
+# ---- SSE 流式响应 ----
+sse-starlette>=0.40.0
 
-# Pydantic 数据验证
-pydantic==2.10.0
-pydantic-settings==2.6.0
+# ---- 数据库 ----
+sqlalchemy[asyncio]>=2.0.0
+asyncpg>=0.30.0
+alembic>=1.14.0
 
-# HTTP 客户端
-httpx==0.27.2
+# ---- Redis（redis>=5 已内置异步，aioredis 已废弃） ----
+redis>=5.2.0
 
-# 钉钉 SDK
-dingtalk-stream==0.24.3
+# ---- 配置管理 ----
+pydantic>=2.10.0
+pydantic-settings>=2.6.0
 
-# ASR/TTS (后续添加)
-# dashscope>=1.0.0
-# edge-tts>=6.0.0
+# ---- HTTP 客户端（LLM、RLM、RAG 等通用调用） ----
+httpx>=0.27.2
 
-# 工具
-python-dotenv==1.0.1
+# ---- 钉钉集成 ----
+dingtalk-stream>=0.24.3
+
+# ---- LLM（OpenAI 兼容格式，底座可为 DeepSeek / 通义千问 / One-API） ----
+openai>=1.0.0
+
+# ---- 语音服务 ----
+# MVP: edge-tts（免费，音质好），商业化后可替换为阿里云 CosyVoice
+edge-tts>=6.1.0

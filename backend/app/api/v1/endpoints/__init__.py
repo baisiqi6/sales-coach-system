@@ -1,1 +1,1 @@
-# API endpoints 模块
+"""v1 endpoints"""
