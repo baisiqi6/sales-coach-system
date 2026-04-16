@@ -12,6 +12,7 @@ from app.api.v1.endpoints import (
     auth,
     persona,
     session,
+    ws_session,
     evaluation,
     admin,
 )
@@ -27,8 +28,11 @@ api_router.include_router(auth.router)
 # AI 分身管理
 api_router.include_router(persona.router)
 
-# 对练会话
+# 对练会话（REST）
 api_router.include_router(session.router)
+
+# 对练会话（WebSocket）
+api_router.include_router(ws_session.router)
 
 # 评估报告
 api_router.include_router(evaluation.router)

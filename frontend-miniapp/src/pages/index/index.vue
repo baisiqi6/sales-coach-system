@@ -28,39 +28,38 @@
 </template>
 
 <script>
+import { getPersonas, healthCheck } from '@/src/api/index.js'
+
 export default {
     data() {
         return {
-            scenarios: [
-                {
-                    id: 1,
-                    name: '价格异议处理',
-                    description: '练习应对客户对价格的抗拒',
-                    icon: '💰'
-                },
-                {
-                    id: 2,
-                    name: '产品介绍',
-                    description: '向客户清晰介绍产品优势',
-                    icon: '📦'
-                },
-                {
-                    id: 3,
-                    name: '成交促成',
-                    description: '在合适时机推进成交',
-                    icon: '🎯'
-                }
-            ],
+            scenarios: [],
             testResult: ''
         }
     },
+    onShow() {
+        this.loadScenarios()
+    },
     methods: {
+        async loadScenarios() {
+            try {
+                const personas = await getPersonas()
+                this.scenarios = personas.map(p => ({
+                    id: p.id || p.uuid,
+                    name: p.name,
+                    description: p.scenario_desc,
+                    icon: '🎯'
+                }))
+            } catch (err) {
+                // 后端未就绪时使用默认场景
+                this.scenarios = [
+                    { id: 1, name: '价格异议处理', description: '练习应对客户对价格的抗拒', icon: '💰' },
+                    { id: 2, name: '产品介绍', description: '向客户清晰介绍产品优势', icon: '📦' },
+                    { id: 3, name: '成交促成', description: '在合适时机推进成交', icon: '🎯' }
+                ]
+            }
+        },
         selectScenario(scenario) {
-            uni.showToast({
-                title: `选择场景: ${scenario.name}`,
-                icon: 'none'
-            })
-            // 跳转到对练页面
             uni.navigateTo({
                 url: '/pages/chat/chat?scenarioId=' + scenario.id
             })
@@ -68,16 +67,10 @@ export default {
         async testBackend() {
             this.testResult = '测试中...'
             try {
-                // 使用局域网 IP 地址，小程序无法访问 localhost
-                const response = await uni.request({
-                    url: 'http://192.168.108.55:8000/api/v1/health',
-                    method: 'GET'
-                })
+                await healthCheck()
                 this.testResult = '后端联通成功！'
-                console.log('后端响应:', response)
             } catch (error) {
                 this.testResult = '后端联通失败: ' + error.message
-                console.error('后端错误:', error)
             }
         }
     }

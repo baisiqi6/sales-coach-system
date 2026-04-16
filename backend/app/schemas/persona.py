@@ -3,6 +3,7 @@ AI 分身 Schema
 """
 
 from datetime import datetime
+from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -27,7 +28,7 @@ class PersonaUpdate(BaseModel):
 
 class PersonaResponse(PersonaBase):
     """分身响应"""
-    uuid: str = Field(validation_alias="uid")
+    uuid: UUID = Field(validation_alias="uid")
     created_by_manager_id: int | None
     created_at: datetime
     updated_at: datetime

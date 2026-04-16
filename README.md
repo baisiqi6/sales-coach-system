@@ -1,6 +1,6 @@
 # CoachStage 智能销售对练系统
 
-基于钉钉生态的企业级 AI 对练系统
+基于钉钉生态的企业级 AI 对练系统，使用 Pipecat 实时语音框架实现 STT → LLM → TTS 全链路语音对话。
 
 ## 项目结构
 
@@ -12,19 +12,33 @@ coach-stage/
 ├── backend/                     # FastAPI 后端
 │   ├── app/
 │   │   ├── api/v1/             # API 路由层
+│   │   │   └── endpoints/
+│   │   │       ├── session.py      # 对练会话 CRUD（REST）
+│   │   │       ├── ws_session.py   # 对练会话 WebSocket（实时语音）
+│   │   │       ├── persona.py      # AI 分身 CRUD
+│   │   │       └── ...
 │   │   ├── core/                # 核心配置（config, database）
 │   │   ├── models/              # 数据库模型（SQLAlchemy 2.0）
 │   │   ├── schemas/             # Pydantic 请求/响应模型
-│   │   └── services/            # 业务逻辑层（待实现）
+│   │   ├── services/            # 业务逻辑层
+│   │   │   └── pipecat_pipeline.py  # Pipecat 语音 Pipeline（STT→LLM→TTS）
+│   │   └── db/
+│   │       └── seed.py          # 数据库种子数据
 │   ├── alembic/                 # 数据库迁移（Alembic 异步模式）
 │   ├── requirements.txt
 │   ├── Dockerfile
-│   └── entrypoint.sh            # 容器启动脚本
+│   └── entrypoint.sh
 │
 ├── frontend-miniapp/            # uni-app 销售端小程序
-│   ├── src/pages/               # 页面（index / chat / report）
-│   ├── src/api/                 # API 封装
-│   └── src/store/               # Pinia 状态管理
+│   ├── src/
+│   │   ├── pages/               # 页面（index / chat / report）
+│   │   ├── api/                 # API 封装
+│   │   ├── utils/
+│   │   │   ├── protobuf-client.js  # Pipecat protobuf 帧编解码
+│   │   │   ├── audio.js            # 音频录制与播放（Web Audio API）
+│   │   │   └── websocket.js        # Pipecat WebSocket 客户端
+│   │   └── store/               # 状态管理
+│   └── ...
 │
 └── frontend-admin/              # Vue3 主管后台（待实现）
 ```
@@ -34,142 +48,99 @@ coach-stage/
 ### 前置条件
 
 - Docker + Docker Compose
-- （可选）前端开发：HBuilderX 或 uni-app CLI
+- Python 3.11+
+- （前端）HBuilderX 或 uni-app CLI
 
-### 1. 配置环境变量
-
-```bash
-cp .env.example .env
-# 编辑 .env，填入真实凭据（POSTGRES_PASSWORD、REDIS_PASSWORD、DINGTALK_*、LLM_* 等）
-```
-
-### 2. 启动所有服务
+### 1. 启动数据库和 Redis
 
 ```bash
-docker compose up --build
-```
-
-服务启动顺序：
-1. `postgres` → 健康检查通过
-2. `redis` → 健康检查通过
-3. `backend` → 运行 `alembic upgrade head` 迁移数据库 → 启动 uvicorn
-
-### 3. 验证服务
-
-```bash
-# 基础健康检查
-curl http://localhost:8000/health
-
-# API 健康检查
-curl http://localhost:8000/api/v1/health
-
-# 查看 Swagger 文档
-open http://localhost:8000/docs
-```
-
-### 4. 查看服务状态和日志
-
-```bash
-docker compose ps           # 查看运行状态
-docker compose logs -f      # 实时日志
-docker compose logs backend # 仅 backend 日志
-```
-
-### 5. 停止服务
-
-```bash
-docker compose down         # 停止并移除容器
-docker compose down -v      # 停止并删除数据卷（慎用，会清空数据库）
-```
-
-### 6. 本地开发（直接运行 Python，不进容器）
-
-项目使用独立的虚拟环境 `backend/venv/`，完全隔离于全局 Python 环境。
-
-#### 前提：先启动数据库和 Redis（用 Docker）
-
-```bash
-# 只启动 postgres 和 redis，不启动 backend 容器
 docker compose up -d postgres redis
 ```
 
-#### 配置 .env
-
-```bash
-cp .env.example .env
-# 编辑 .env，填入数据库和 Redis 凭据
-# 注意：本地开发时需要将 DB_HOST 和 REDIS_HOST 改为 localhost
-```
-
-#### 创建 / 激活虚拟环境
+### 2. 配置环境变量
 
 ```bash
 cd backend
-
-# 首次创建（如果 backend/venv 不存在）
-python3 -m venv venv
-
-# 激活虚拟环境
-source venv/bin/activate
-
-# 安装依赖（只需执行一次）
-pip install -r requirements.txt
+cp .env.example .env
+# 编辑 .env，填入：
+# - LLM_API_KEY（DeepSeek）
+# - TTS_API_KEY + MINIMAX_GROUP_ID（MiniMax）
+# - WHISPER_DEVICE（cuda 或 cpu，取决于服务器是否有 GPU）
 ```
 
-#### 启动后端
+### 3. 安装依赖并启动后端
 
 ```bash
-# 首次运行需要迁移数据库
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# 数据库迁移
 alembic upgrade head
 
-# 启动开发服务器（热重载）
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# 种子数据（创建测试用户和 AI 分身）
+python3 -m app.db.seed
+
+# 启动开发服务器
+uvicorn app.main:app --reload --port 8000
 ```
 
-> 本地开发连接地址：
-> - PostgreSQL：`127.0.0.1:5433`（由 docker-compose 映射）
-> - Redis：`127.0.0.1:6379`
-> - Backend：`http://localhost:8000`
-
-#### 停止虚拟环境
+### 4. 验证服务
 
 ```bash
-deactivate
+curl http://localhost:8000/health
+curl http://localhost:8000/api/v1/personas
 ```
 
-#### 注意事项
+### 5. 启动前端（H5 模式）
 
-- **禁止**使用全局 Python 或全局 pip 安装项目依赖，必须在激活 `venv` 后操作。
-- 如果遇到 `ModuleNotFoundError`，先确认虚拟环境已激活（命令行前缀显示 `(venv)`）。
-- 后端代码改动后 uvicorn 会自动重载（`--reload`），无需手动重启。
+```bash
+cd frontend-miniapp
+pnpm dev:h5
+```
 
-## 前端说明
+浏览器打开 → 选择场景 → 按住说话 → 听到 AI 回复
 
-### 编译目标
+## 核心架构
 
-- **钉钉小程序**（生产）：使用 `dd.getRecorderManager()` 原生录音
-- **H5**（开发调试）：在浏览器中运行，录音功能降级
+### 语音对话 Pipeline
 
-### 打包钉钉小程序（HBuilderX）
+使用 [Pipecat](https://github.com/pipecat-ai/pipecat) 框架编排实时语音对话：
 
-1. 打开 `frontend-miniapp` 项目
-2. 运行 → 运行到小程序模拟器 → 钉钉小程序
-3. 发行 → 小程序-钉钉
+```
+前端（浏览器/小程序）
+    ↕ WebSocket（protobuf 帧）
+Pipecat Pipeline:
+  [FastAPIWebsocketTransport]
+  → [WhisperSTTService]    本地 faster-whisper（GPU 加速）
+  → [SileroVADAnalyzer]    语音活动检测
+  → [DeepSeekLLMService]   DeepSeek 大模型
+  → [MiniMaxHttpTTSService] MiniMax 语音合成
+  → [FastAPIWebsocketTransport]
+    ↕
+前端播放音频 + 显示文字
+```
+
+### 关键设计
+
+- **WebSocket 双向通信**：替代原 SSE 方案，支持实时音频帧双向传输
+- **Protobuf 序列化**：Pipecat 使用 ProtobufFrameSerializer 编解码帧，前端需配套解析
+- **VAD + 打断处理**：Pipecat 内置 Silero VAD 检测用户说话，支持用户打断 AI
+- **本地 ASR**：faster-whisper 运行在服务器 GPU 上，无需云端 ASR 服务
 
 ## 当前进度
 
 - [x] Docker 容器化部署（PostgreSQL + Redis + Backend）
 - [x] 数据库模型层（SQLAlchemy 2.0 Mapped 语法）
-- [x] Alembic 异步迁移配置
+- [x] Alembic 异步迁移 + 种子数据
 - [x] Pydantic Schemas 层（API 接口契约）
-- [x] API 路由层（模块化路由注册，骨架完成）
-- [x] 健康检查接口
-- [x] 数据库迁移（entrypoint.sh 自动执行 `alembic upgrade head`）
-- [x] Redis 连接层（`core/redis.py`）
+- [x] Session / Persona CRUD 端点
+- [x] Pipecat 语音 Pipeline（Whisper → DeepSeek → MiniMax）
+- [x] WebSocket 实时语音端点
+- [x] 前端 WebSocket + 音频录制/播放
+- [x] 前端聊天页面（消息显示 + 按住说话）
 - [ ] 钉钉 Stream SDK 集成
-- [ ] LLM 服务集成（`services/llm_service.py`）
-- [ ] ASR 语音识别（`services/asr_service.py`）
-- [ ] TTS 语音合成（`services/tts_service.py`）
-- [ ] 对练核心功能（`endpoints/session.py`）
+- [ ] 钉钉小程序端适配（录音 + WebSocket）
+- [ ] 逐轮评分 + 评估报告生成
+- [ ] RAG 知识库集成
 - [ ] 主管后台功能
-- [ ] 前端小程序录音 + SSE 通信

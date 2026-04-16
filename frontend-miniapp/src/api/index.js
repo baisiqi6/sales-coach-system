@@ -54,5 +54,47 @@ export function ping() {
     })
 }
 
+/**
+ * 获取分身列表
+ */
+export function getPersonas() {
+    return request({
+        url: '/personas',
+        method: 'GET'
+    })
+}
+
+/**
+ * 创建对练会话
+ */
+export function createSession(saleUserId, personaId) {
+    return request({
+        url: '/sessions',
+        method: 'POST',
+        data: { sale_user_id: saleUserId, persona_id: personaId }
+    })
+}
+
+/**
+ * 结束对练会话
+ */
+export function endSession(sessionUuid, reason) {
+    return request({
+        url: `/sessions/${sessionUuid}/end`,
+        method: 'POST',
+        data: { reason: reason || '用户主动结束' }
+    })
+}
+
+/**
+ * 获取会话详情
+ */
+export function getSession(sessionUuid) {
+    return request({
+        url: `/sessions/${sessionUuid}`,
+        method: 'GET'
+    })
+}
+
 // 导出基础配置
 export { BASE_URL }

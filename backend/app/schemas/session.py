@@ -3,6 +3,7 @@
 """
 
 from datetime import datetime
+from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -30,7 +31,7 @@ class SessionResponse(SessionBase):
     会话响应
     total_score 和 report_json 在会话结束后才有值
     """
-    uuid: str = Field(validation_alias="uid")
+    uuid: UUID = Field(validation_alias="uid")
     status: int  # 0=进行中, 1=已完成, 2=中断
     total_score: int | None = None
     score_detail_json: dict | None = None

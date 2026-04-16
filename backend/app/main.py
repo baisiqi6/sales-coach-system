@@ -2,11 +2,24 @@
 CoachStage FastAPI 后端入口
 """
 
+from contextlib import asynccontextmanager
+
+import aiohttp
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.api.v1.router import api_router
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """应用生命周期管理"""
+    # Startup
+    app.state.aiohttp_session = aiohttp.ClientSession()
+    yield
+    # Shutdown
+    await app.state.aiohttp_session.close()
 
 
 def create_app() -> FastAPI:
@@ -16,6 +29,7 @@ def create_app() -> FastAPI:
         title=settings.APP_NAME,
         version=settings.APP_VERSION,
         debug=settings.DEBUG,
+        lifespan=lifespan,
     )
 
     # ---- CORS 中间件 ----

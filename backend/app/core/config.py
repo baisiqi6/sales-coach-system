@@ -58,16 +58,17 @@ class Settings(BaseSettings):
     LLM_API_KEY: str = ""
     LLM_MODEL: str = "deepseek-chat"
 
-    # ---- ASR（阿里云语音识别）----
-    ASR_APP_KEY: str = ""
-    ASR_ACCESS_KEY_ID: str = ""
-    ASR_ACCESS_KEY_SECRET: str = ""
-    ASR_REGION: str = "cn-wulanchabu"
+    # ---- ASR（本地 faster-whisper）----
+    WHISPER_MODEL: str = "large-v3-turbo"
+    WHISPER_DEVICE: str = "cuda"
+    WHISPER_COMPUTE_TYPE: str = "int8_float16"
 
-    # ---- TTS（MiniMax M2.7-highspeed）----
+    # ---- TTS（MiniMax）----
     TTS_API_KEY: str = ""
-    TTS_MODEL: str = "MiniMax-M2.7-highspeed"
+    TTS_MODEL: str = "speech-02-turbo"
     TTS_VOICE_ID: str = ""
+    MINIMAX_GROUP_ID: str = ""
+    MINIMAX_VOICE: str = "Calm_Woman"
 
     # ---- 外部知识库 RAG ----
     RAG_API_URL: str = ""

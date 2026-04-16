@@ -8,8 +8,9 @@ fastapi>=0.115.0
 uvicorn[standard]>=0.32.0
 python-multipart>=0.0.12
 
-# ---- SSE 流式响应 ----
-sse-starlette>=0.40.0
+# ---- 语音服务（Pipecat 实时语音 Pipeline）----
+pipecat-ai[whisper,silero]>=0.2.0
+aiohttp>=3.9.0
 
 # ---- 数据库 ----
 sqlalchemy[asyncio]>=2.0.0
@@ -32,6 +33,3 @@ dingtalk-stream>=0.24.3
 # ---- LLM（OpenAI 兼容格式，底座可为 DeepSeek / 通义千问 / One-API） ----
 openai>=1.0.0
 
-# ---- 语音服务 ----
-# MVP: edge-tts（免费，音质好），商业化后可替换为阿里云 CosyVoice
-edge-tts>=6.1.0
